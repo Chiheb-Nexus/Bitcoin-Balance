@@ -47,7 +47,7 @@ class CheckAddress:
             return data
 
         except Exception as e:
-            print("Error occured during fetching addresses balance\n", e)
+            #print("Error occured during fetching addresses balance\n", e)
             return None
 
     def load(self):
@@ -56,11 +56,15 @@ class CheckAddress:
                 d = in_file.readlines()
 
                 for add in d:
-                    data = self.check(address = add)
-                    print("%s : %s BTC" % (add.replace("\n", ""), data["data"]["balance"]))
+                    try:
+                        data = self.check(address = add)
+                        print("%s : %s BTC" % (add.replace("\n", ""), data["data"]["balance"]))
 
-                    with open(self.out_file, 'a') as out_file:
-                        out_file.write("%s : %s BTC\n" % (add.replace("\n", ""), data["data"]["balance"]))
+                        with open(self.out_file, 'a') as out_file:
+                            out_file.write("%s : %s BTC\n" % (add.replace("\n", ""), data["data"]["balance"]))
+                    except Exception as e:
+                        print("Got an empty line or an invalid data")
+
         except Exception as e:
             print("Error occured during importing addresses from file.\nPlease enter a valid path file.\n", e)
 
