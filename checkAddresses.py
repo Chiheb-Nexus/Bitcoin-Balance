@@ -58,10 +58,10 @@ class CheckAddress:
                 for add in d:
                     try:
                         data = self.check(address = add)
-                        print("%s : %s BTC" % (add.replace("\n", ""), data["data"]["balance"]))
+                        print("%s : %.08f BTC" % (add.replace("\n", ""), data["data"]["balance"]))
 
                         with open(self.out_file, 'a') as out_file:
-                            out_file.write("%s : %s BTC\n" % (add.replace("\n", ""), data["data"]["balance"]))
+                            out_file.write("%s : %.08f BTC\n" % (add.replace("\n", ""), data["data"]["balance"]))
                     except Exception as e:
                         print("Got an empty line or an invalid data")
 
