@@ -18,8 +18,9 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 
-from urllib.request import urlopen
+from urllib.request import urlopen, Request
 from json import loads
+from time import sleep
 import argparse, sys
 
 class CheckAddress:
@@ -42,28 +43,39 @@ class CheckAddress:
 
     def check(self, address = ""):
         try:
-            response = urlopen(self.explorer + address)
+            request = Request(self.explorer + address, headers= {'User-Agent' :\
+             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.0 Safari/537.36"})
+            response = urlopen(request)
             data = loads(response.read().decode("utf8"))
             return data
 
         except Exception as e:
-            #print("Error occured during fetching addresses balance\n", e)
+            print("Error occured during fetching addresses balance\n", e)
             return None
 
     def load(self):
         try:
             with open(self.in_file, 'r') as in_file:
                 d = in_file.readlines()
+                # time counter to escape blocking requests by blockr.io
+                i,j  = 0, 1
+                print("\n\t\tWe have {0} addresses to check\n".format(len(d)))
 
                 for add in d:
+                    if i == 5:
+                        sleep(1)
+                        i = 0
                     try:
                         data = self.check(address = add)
-                        print("%s : %.08f BTC" % (add.replace("\n", ""), data["data"]["balance"]))
+                        print("%s : %.08f BTC \tETA: %.02f %%" % (add.replace("\n", ""),\
+                         data["data"]["balance"], float(j*100/len(d))))
 
                         with open(self.out_file, 'a') as out_file:
                             out_file.write("%s : %.08f BTC\n" % (add.replace("\n", ""), data["data"]["balance"]))
                     except Exception as e:
-                        print("Got an empty line or an invalid data")
+                        print("Got an empty line or an invalid data", e)
+                    i+=1
+                    j+=1
 
         except Exception as e:
             print("Error occured during importing addresses from file.\nPlease enter a valid path file.\n", e)
