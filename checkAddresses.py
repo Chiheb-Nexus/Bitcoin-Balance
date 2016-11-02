@@ -50,8 +50,8 @@ class CheckAddress:
             return data
 
         except Exception as e:
-            print("Error occured during fetching addresses balance\n", e)
-            return None
+            #print("Error occured during fetching addresses balance\n", e)
+            return ""
 
     def load(self):
         try:
@@ -62,18 +62,26 @@ class CheckAddress:
                 print("\n\t\tWe have {0} addresses to check\n".format(len(d)))
 
                 for add in d:
-                    if i == 5:
-                        sleep(1)
-                        i = 0
                     try:
-                        data = self.check(address = add)
-                        print("%s : %.08f BTC \tETA: %.02f %%" % (add.replace("\n", ""),\
-                         data["data"]["balance"], float(j*100/len(d))))
+                        if i == 5:
+                            sleep(1)
+                            i = 0
+                        try:
+                            data = self.check(address = add)
+                            print("\033[92m%s\033[0m : \033[95m%.08f BTC\033[0m \tETA: %.02f %%" % (add.replace("\n", ""),\
+                            data["data"]["balance"], float(j*100/len(d))))
 
-                        with open(self.out_file, 'a') as out_file:
-                            out_file.write("%s : %.08f BTC\n" % (add.replace("\n", ""), data["data"]["balance"]))
-                    except Exception as e:
-                        print("Got an empty line or an invalid data", e)
+                            with open(self.out_file, 'a') as out_file:
+                                out_file.write("%s : %.08f BTC\n" % (add.replace("\n", ""), data["data"]["balance"]))
+                        except Exception:
+                            print("Got an empty line ...")
+
+                    except KeyboardInterrupt:
+                        user_input = input("\r\033[93mExit application: [Y/N]:\033[0m ")
+                        if user_input == "Y" or user_input == "y":
+                            break
+                        else:
+                            pass
                     i+=1
                     j+=1
 
@@ -83,3 +91,4 @@ class CheckAddress:
 # Run the script !
 if __name__ == '__main__':
     app = CheckAddress(sys.argv[1:])
+
